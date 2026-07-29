@@ -26,37 +26,37 @@ pub struct Base(u8);
 
 impl Base {
     #[inline]
-    pub fn new(x: u8) -> Self {
+    pub const fn new(x: u8) -> Self {
         Self(x & 0xf)
     }
 
     #[inline]
-    pub fn from_u8(c: u8) -> Self {
+    pub const fn from_u8(c: u8) -> Self {
         Self(SEQ_NT16_TABLE[c as usize])
     }
 
     #[inline]
-    pub fn combine(&self, other: &Self) -> u8 {
+    pub const fn combine(&self, other: &Self) -> u8 {
         (self.0 << 4) | other.0
     }
 
     #[inline]
-    pub fn as_u8(&self) -> u8 {
+    pub const fn as_u8(&self) -> u8 {
         self.0
     }
 
     #[inline]
-    pub fn as_char(&self) -> char {
+    pub const fn as_char(&self) -> char {
         BASE_TABLE[self.0 as usize] as char
     }
     
     #[inline]
-    pub fn single_base(&self) -> Option<u8> {
+    pub const fn single_base(&self) -> Option<u8> {
         SINGLE_BASE[self.0 as usize]
     }
 
     #[inline]
-    pub fn complement(&self) -> Self {
+    pub const fn complement(&self) -> Self {
         Self(self.0.reverse_bits() >> 4)
     }
 }
