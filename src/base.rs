@@ -21,7 +21,7 @@ use crate::sam::SeqComplement;
 /// 13 -> D (A | G | T)
 /// 14 -> B (C | G | T)
 /// 15 -> N (A | C | G | T)
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct Base(u8);
 
 impl Base {
