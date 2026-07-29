@@ -3,6 +3,7 @@ pub mod gen_utils;
 pub mod int_utils;
 pub mod khash;
 pub mod kstring;
+pub mod le_bytes;
 pub mod sam;
 
 pub use gen_utils::*;
