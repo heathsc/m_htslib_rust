@@ -12,7 +12,7 @@ enum ValidationState {
     Interior,
 }
 
-pub(super) fn valid_elem_slice(v: &[CigarElem]) -> Result<(), CigarError> {
+pub fn valid_elem_slice(v: &[CigarElem]) -> Result<(), CigarError> {
     let mut state = ValidationState::Start;
     for op in v.iter().map(|o| o.op()) {
         state = match state {
