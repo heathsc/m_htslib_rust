@@ -56,6 +56,11 @@ impl Base {
     }
 
     #[inline]
+    pub const fn is_no_base(&self) -> bool {
+        self.0 as u8 == 0
+    }
+
+    #[inline]
     pub const fn complement(&self) -> Self {
         Self(self.0.reverse_bits() >> 4)
     }
