@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, iter::FusedIterator};
 
 use crate::sam::SeqComplement;
 
@@ -131,3 +131,104 @@ const SEQ_NT16_TABLE: [u8; 256] = [
 const SINGLE_BASE: [Option<u8>; 16] = [
     None, Some(0), Some(1), None, Some(2), None, None, None, Some(3), None, None, None, None, None, None, None
 ];
+
+pub struct BaseIter<'a> {
+    inner: &'a [u8],
+}
+
+impl<'a> BaseIter<'a> {
+    pub fn new(v: &'a [u8]) -> Self {
+        Self { inner: v }
+    }
+}
+
+impl<'a> Iterator for BaseIter<'a> {
+    type Item = Base;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.inner.is_empty() {
+            None
+        } else {
+            let b = Base::from_u8(self.inner[0]);
+            self.inner = &self.inner[1..];
+            Some(b)
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let n = self.inner.len();
+        (n, Some(n))
+    }
+
+    fn count(self) -> usize {
+        self.inner.len()
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        self.inner
+            .get(n)
+            .map(|b| {
+                let b = Base::from_u8(*b);
+                self.inner = &self.inner[n + 1..];
+                b
+            })
+            .or_else(|| {
+                self.inner = &[];
+                None
+            })
+    }
+
+    fn last(self) -> Option<Self::Item> {
+        self.inner.last().map(|b| Base::from_u8(*b))
+    }
+}
+
+impl<'a> ExactSizeIterator for BaseIter<'a> {}
+impl<'a> FusedIterator for BaseIter<'a> {}
+
+impl<'a> DoubleEndedIterator for BaseIter<'a> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let l = self.inner.len();
+        if l > 0 {
+            let b = Base::from_u8(self.inner[l - 1]);
+            self.inner = &self.inner[..l - 1];
+            Some(b)
+        } else {
+            None
+        }
+    }
+
+    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
+        let l = self.inner.len();
+        if l > n {
+            let b = Base::from_u8(self.inner[l - 1 - n]);
+            self.inner = &self.inner[..l - 1 - n];
+            Some(b)
+        } else {
+            self.inner = &[];
+            None
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn base_iter() {
+        let mut itr = BaseIter::new(b"ACCG");
+        assert_eq!(itr.next(), Some(Base::from_u8(b'A')));
+        assert_eq!(itr.nth(2), Some(Base::from_u8(b'G')));
+        assert_eq!(itr.next(), None);
+    }
+
+    #[test]
+    fn base_iter_dbl() {
+        let mut itr = BaseIter::new(b"ACCGTG");
+        assert_eq!(itr.next(), Some(Base::from_u8(b'A')));
+        assert_eq!(itr.next_back(), Some(Base::from_u8(b'G')));
+        assert_eq!(itr.nth_back(1), Some(Base::from_u8(b'G')));
+        assert_eq!(itr.next(), Some(Base::from_u8(b'C')));
+        assert_eq!(itr.nth(5), None);
+    }
+}
