@@ -89,17 +89,17 @@ const CIGAR_TYPE1: u32 = 0x13C5A7;
 
 impl CigarElem {
     #[inline]
-    pub fn op_len(&self) -> u32 {
+    pub const fn op_len(&self) -> u32 {
         self.0 >> 4
     }
 
     #[inline]
-    pub fn op(&self) -> CigarOp {
+    pub const fn op(&self) -> CigarOp {
         unsafe { transmute((self.0 & 15) as u8) }
     }
 
     #[inline]
-    pub fn op_pair(&self) -> (CigarOp, u32) {
+    pub const fn op_pair(&self) -> (CigarOp, u32) {
         (self.op(), self.op_len())
     }
 
@@ -107,33 +107,33 @@ impl CigarElem {
     // If bit 0 is set in op_type then the op consumes the query, and
     // if bit 1 is set then the op consumes the reference
     #[inline]
-    pub fn op_type(&self) -> u32 {
+    pub const fn op_type(&self) -> u32 {
         (CIGAR_TYPE >> ((self.0 & 15) << 1)) & 3
     }
 
     #[inline]
-    pub fn consumes_reference(&self) -> bool {
+    pub const fn consumes_reference(&self) -> bool {
         (self.op_type() & 2) != 0
     }
 
     #[inline]
-    pub fn consumes_query(&self) -> bool {
+    pub const fn consumes_query(&self) -> bool {
         (self.op_type() & 1) != 0
     }
 
     #[inline]
-    pub fn consumes_query_including_hard_clips(&self) -> bool {
+    pub const fn consumes_query_including_hard_clips(&self) -> bool {
         (self.op_type1() & 1) != 0
     }
 
     #[inline]
     // Similar to above, but we also count Hard clips the same as Soft clips
-    pub fn op_type1(&self) -> u32 {
+    pub const fn op_type1(&self) -> u32 {
         (CIGAR_TYPE1 >> ((self.0 & 15) << 1)) & 3
     }
 
     #[inline]
-    pub fn to_le_bytes(&self) -> [u8; 4] {
+    pub const fn to_le_bytes(&self) -> [u8; 4] {
         self.0.to_le_bytes()
     }
 
@@ -162,6 +162,18 @@ impl CigarElem {
             }
         } else {
             Err(CigarError::UnknownOperator)
+        }
+    }
+
+    /// Returns a new CigarOp after decrementing length of Self
+    /// If new lenth is zero, returns None.
+    /// Will panic if initial length is zero.
+    pub(super) fn decr_len(&self) -> Option<Self> {
+        let (op, len) = self.op_pair();
+        match len {
+            0 => panic!("Initial op length zero"),
+            1 => None,
+            l => Some(unsafe{Self::from_parts_unchecked(op, l - 1)})
         }
     }
 }

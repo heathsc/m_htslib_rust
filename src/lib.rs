@@ -1,6 +1,7 @@
 pub mod base;
 pub mod gen_utils;
 pub mod int_utils;
+pub mod iterators;
 pub mod khash;
 pub mod kstring;
 pub mod le_bytes;
