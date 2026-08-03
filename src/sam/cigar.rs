@@ -1,5 +1,6 @@
 pub mod cigar_buf;
 pub mod cigar_error;
+pub mod cigar_iter;
 pub mod cigar_validate;
 
 use std::{
@@ -201,11 +202,11 @@ pub struct Cigar([CigarElem]);
 
 impl Cigar {
     #[inline]
-    pub fn as_elems(&self) -> &[CigarElem] {
+    pub const fn as_elems(&self) -> &[CigarElem] {
         &self.0
     }
     #[inline]
-    pub fn as_elems_mut(&mut self) -> &mut [CigarElem] {
+    pub const fn as_elems_mut(&mut self) -> &mut [CigarElem] {
         &mut self.0
     }
 

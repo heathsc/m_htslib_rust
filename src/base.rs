@@ -1,6 +1,6 @@
-use std::{fmt, iter::FusedIterator};
+use std::{ffi::{CStr, OsStr}, fmt, iter::FusedIterator, os::unix::ffi::OsStrExt};
 
-use crate::sam::SeqComplement;
+use crate::{kstring::KString, sam::SeqComplement};
 
 /// A base represents the IUPAC ambiguity codes
 /// There are 16 possible codes, so Base can not be more than 15
@@ -139,6 +139,36 @@ pub struct BaseIter<'a> {
 impl<'a> BaseIter<'a> {
     pub fn new(v: &'a [u8]) -> Self {
         Self { inner: v }
+    }
+}
+
+impl<'a> From<&'a [u8]> for BaseIter<'a> {
+    fn from(value: &'a [u8]) -> Self {
+        Self::new(value)
+    }
+}
+
+impl<'a> From<&'a str> for BaseIter<'a> {
+    fn from(value: &'a str) -> Self {
+        Self::new(value.as_bytes())
+    }
+}
+
+impl<'a> From<&'a CStr> for BaseIter<'a> {
+    fn from(value: &'a CStr) -> Self {
+        Self::new(value.to_bytes())
+    }
+}
+
+impl<'a> From<&'a OsStr> for BaseIter<'a> {
+    fn from(value: &'a OsStr) -> Self {
+        Self::new(value.as_bytes())
+    }
+}
+
+impl<'a> From<&'a KString> for BaseIter<'a> {
+    fn from(value: &'a KString) -> Self {
+        Self::new(value.as_slice())
     }
 }
 
