@@ -109,6 +109,7 @@ where
         loop {
             if let Some(ret) = self.current_elem.take().and_then(|e| {
                 if e.op_len() > 0 {
+                    println!("OOOK! CurrentElem {}", e);   
                     self.current_elem = e.decr_len();
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
@@ -117,7 +118,6 @@ where
                         CigarOp::Ins => Some(mk(self.seq.next(), None)),
                         CigarOp::Del => Some(mk(None, self.ref_seq.next())),
                         CigarOp::SoftClip => {
-                            println!("OOOK! SoftClip {}", e);
                             self.seq.next();
                             None
                         }
