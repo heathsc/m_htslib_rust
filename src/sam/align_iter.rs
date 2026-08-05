@@ -107,7 +107,7 @@ where
         let mk = |s, r| AlignIterElem::make(s, r);
 
         loop {
-            while let Some(ret) = self.current_elem.take().and_then(|e| {
+            if let Some(ret) = self.current_elem.take().and_then(|e| {
                 if e.op_len() > 0 {
                     print!("OOOK! CurrentElem {}", e);
                     self.current_elem = e.decr_len();
@@ -138,7 +138,7 @@ where
             }) {
                 return Some(ret);
             }
-            if self.get_next_cigar_elem() {
+            if self.current_elem.is_none() && self.get_next_cigar_elem() {
                 break;
             }
         }
@@ -182,7 +182,7 @@ where
             }) {
                 return Some(ret);
             }
-            if self.get_next_cigar_elem_back() {
+            if self.current_elem_rev.is_none() && self.get_next_cigar_elem_back() {
                 break;
             }
         }
