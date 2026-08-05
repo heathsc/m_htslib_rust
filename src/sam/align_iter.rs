@@ -107,7 +107,7 @@ where
         let mk = |s, r| AlignIterElem::make(s, r);
 
         loop {
-            if let Some(ret) = self.current_elem.take().and_then(|e| {
+            while let Some(ret) = self.current_elem.take().and_then(|e| {
                 if e.op_len() > 0 {
                     print!("OOOK! CurrentElem {}", e);
                     self.current_elem = e.decr_len();
