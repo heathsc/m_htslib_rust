@@ -111,7 +111,7 @@ where
                 if e.op_len() > 0 {
                     print!("OOOK! CurrentElem {}", e);   
                     self.current_elem = e.decr_len();
-                    println!(" -> {}", e);  
+                    println!(" -> {:?}", self.current_elem);  
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
                             Some(mk(self.seq.next(), self.ref_seq.next()))
