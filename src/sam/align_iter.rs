@@ -109,28 +109,33 @@ where
         loop {
             if let Some(ret) = self.current_elem.take().and_then(|e| {
                 if e.op_len() > 0 {
-                    print!("OOOK! CurrentElem {}", e);
-                    self.current_elem = e.decr_len();
-                    if let Some(e1) = self.current_elem {
-                        println!(" -> {e1}");
-                    } else {
-                        println!(" -> None");
-                    }
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
+                            self.current_elem = e.decr_len();
                             Some(mk(self.seq.next(), self.ref_seq.next()))
                         }
-                        CigarOp::Ins => Some(mk(self.seq.next(), None)),
-                        CigarOp::Del => Some(mk(None, self.ref_seq.next())),
+                        CigarOp::Ins => {
+                            self.current_elem = e.decr_len();
+                            Some(mk(self.seq.next(), None))
+                        }
+                        CigarOp::Del => {
+                            self.current_elem = e.decr_len();
+                            Some(mk(None, self.ref_seq.next()))
+                        }
                         CigarOp::SoftClip => {
-                            self.seq.next();
+                            self.current_elem = None;
+                            self.seq.nth(e.op_len() as usize);
                             None
                         }
                         CigarOp::RefSkip => {
-                            self.ref_seq.next();
+                            self.current_elem = None;
+                            self.ref_seq.nth(e.op_len() as usize);
                             None
                         }
-                        _ => None,
+                        _ => {
+                            self.current_elem = None;
+                            None
+                        },
                     }
                 } else {
                     None
@@ -159,22 +164,33 @@ where
         loop {
             if let Some(ret) = self.current_elem_rev.take().and_then(|e| {
                 if e.op_len() > 0 {
-                    self.current_elem_rev = e.decr_len();
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
+                            self.current_elem_rev = e.decr_len();
                             Some(mk(self.seq.next_back(), self.ref_seq.next_back()))
                         }
-                        CigarOp::Ins => Some(mk(self.seq.next_back(), None)),
-                        CigarOp::Del => Some(mk(None, self.ref_seq.next_back())),
+                        CigarOp::Ins => {
+                            self.current_elem_rev = e.decr_len();
+                            Some(mk(self.seq.next_back(), None))
+                        }
+                        CigarOp::Del => {
+                            self.current_elem_rev = e.decr_len();
+                            Some(mk(None, self.ref_seq.next_back()))
+                        }
                         CigarOp::SoftClip => {
-                            self.seq.next_back();
+                            self.current_elem_rev = None;
+                            self.seq.nth_back(e.op_len() as usize);
                             None
                         }
                         CigarOp::RefSkip => {
-                            self.ref_seq.next_back();
+                            self.current_elem_rev = None;
+                            self.ref_seq.nth_back(e.op_len() as usize);
                             None
                         }
-                        _ => None,
+                        _ => {
+                            self.current_elem_rev = None;
+                            None
+                        }
                     }
                 } else {
                     None
