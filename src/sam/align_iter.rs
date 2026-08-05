@@ -109,8 +109,9 @@ where
         loop {
             if let Some(ret) = self.current_elem.take().and_then(|e| {
                 if e.op_len() > 0 {
-                    println!("OOOK! CurrentElem {}", e);   
+                    print!("OOOK! CurrentElem {}", e);   
                     self.current_elem = e.decr_len();
+                    println!(" -> {}", e);  
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
                             Some(mk(self.seq.next(), self.ref_seq.next()))
