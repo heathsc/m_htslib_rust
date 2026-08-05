@@ -117,6 +117,7 @@ where
                         CigarOp::Ins => Some(mk(self.seq.next(), None)),
                         CigarOp::Del => Some(mk(None, self.ref_seq.next())),
                         CigarOp::SoftClip => {
+                            println!("OOOK! SoftClip {}", e);
                             self.seq.next();
                             None
                         }
