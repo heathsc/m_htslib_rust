@@ -124,12 +124,12 @@ where
                         }
                         CigarOp::SoftClip => {
                             self.current_elem = None;
-                            self.seq.nth(e.op_len() as usize);
+                            self.seq.nth(e.op_len() as usize - 1);
                             None
                         }
                         CigarOp::RefSkip => {
                             self.current_elem = None;
-                            self.ref_seq.nth(e.op_len() as usize);
+                            self.ref_seq.nth(e.op_len() as usize - 1);
                             None
                         }
                         _ => {
@@ -179,12 +179,12 @@ where
                         }
                         CigarOp::SoftClip => {
                             self.current_elem_rev = None;
-                            self.seq.nth_back(e.op_len() as usize);
+                            self.seq.nth_back(e.op_len() as usize - 1);
                             None
                         }
                         CigarOp::RefSkip => {
                             self.current_elem_rev = None;
-                            self.ref_seq.nth_back(e.op_len() as usize);
+                            self.ref_seq.nth_back(e.op_len() as usize - 1);
                             None
                         }
                         _ => {
