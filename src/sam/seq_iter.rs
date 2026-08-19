@@ -184,6 +184,16 @@ where
     }
 }
 
+impl<I, T> DoubleEndedIterator for RevSeqComp<I>
+where
+    I: DoubleEndedIterator<Item = T>,
+    T: SeqComplement,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.it.next().map(|b| b.get_complement())
+    }
+}
+
 impl<I, T> ExactSizeIterator for RevSeqComp<I>
 where
     I: DoubleEndedIterator + ExactSizeIterator<Item = T>,
@@ -407,3 +417,4 @@ where
 pub trait SeqComplement {
     fn get_complement(&self) -> Self;
 }
+
