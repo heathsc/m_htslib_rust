@@ -1,6 +1,6 @@
 use std::{ffi::{CStr, OsStr}, fmt, iter::FusedIterator, os::unix::ffi::OsStrExt};
 
-use crate::{kstring::KString, sam::SeqComplement};
+use crate::{kstring::KString, sam::{BaseOnSeq, SeqComplement}};
 
 /// A base represents the IUPAC ambiguity codes
 /// There are 16 possible codes, so Base can not be more than 15
@@ -71,6 +71,8 @@ impl SeqComplement for Base {
         self.complement()
     }
 }
+
+impl BaseOnSeq for Base {}
 
 impl fmt::Display for Base {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

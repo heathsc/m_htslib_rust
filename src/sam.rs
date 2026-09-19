@@ -2,4 +2,4 @@ pub mod align_iter;
 pub mod cigar;
 pub mod seq_iter;
 pub use seq_iter::*;
-
+pub use align_iter::BaseOnSeq;

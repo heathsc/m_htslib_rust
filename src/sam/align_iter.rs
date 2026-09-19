@@ -38,6 +38,10 @@ where
     }
 }
 
+pub trait BaseOnSeq {
+    fn base_on_seq(&self) -> bool { true }
+}
+
 pub struct AlignIter<S, C, R, T>
 where
     S: Iterator<Item = T> + FusedIterator,
@@ -99,7 +103,7 @@ where
     S: Iterator<Item = T> + FusedIterator,
     R: Iterator<Item = Base> + FusedIterator,
     C: Iterator<Item = CigarElem> + FusedIterator,
-    T: Sized,
+    T: Sized + BaseOnSeq,
 {
     type Item = AlignIterElem<T>;
 
@@ -112,7 +116,13 @@ where
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
                             self.current_elem = e.decr_len();
-                            Some(mk(self.seq.next(), self.ref_seq.next()))
+                            let s = self.seq.next();
+                            let r = if s.as_ref().map(|b| b.base_on_seq()).unwrap_or(true) {
+                                self.ref_seq.next()
+                            } else {
+                                None
+                            };
+                            Some(mk(s, r))
                         }
                         CigarOp::Ins => {
                             self.current_elem = e.decr_len();
@@ -124,7 +134,16 @@ where
                         }
                         CigarOp::SoftClip => {
                             self.current_elem = None;
-                            self.seq.nth(e.op_len() as usize - 1);
+                            let mut l = e.op_len();
+                            while l > 0 {
+                                if let Some(b) = self.seq.next() {
+                                    if b.base_on_seq() {
+                                        l -= 1
+                                    }
+                                } else {
+                                    break
+                                }
+                            }
                             None
                         }
                         CigarOp::RefSkip => {
@@ -135,7 +154,7 @@ where
                         _ => {
                             self.current_elem = None;
                             None
-                        },
+                        }
                     }
                 } else {
                     None
@@ -156,7 +175,7 @@ where
     S: Iterator<Item = T> + DoubleEndedIterator + FusedIterator,
     R: Iterator<Item = Base> + DoubleEndedIterator + FusedIterator,
     C: Iterator<Item = CigarElem> + DoubleEndedIterator + FusedIterator,
-    T: Sized,
+    T: Sized + BaseOnSeq,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         let mk = |s, r| AlignIterElem::make(s, r);
@@ -167,7 +186,13 @@ where
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
                             self.current_elem_rev = e.decr_len();
-                            Some(mk(self.seq.next_back(), self.ref_seq.next_back()))
+                            let s = self.seq.next_back();
+                            let r = if s.as_ref().map(|b| b.base_on_seq()).unwrap_or(true) {
+                                self.ref_seq.next_back()
+                            } else {
+                                None
+                            };
+                            Some(mk(s, r))
                         }
                         CigarOp::Ins => {
                             self.current_elem_rev = e.decr_len();
@@ -179,7 +204,16 @@ where
                         }
                         CigarOp::SoftClip => {
                             self.current_elem_rev = None;
-                            self.seq.nth_back(e.op_len() as usize - 1);
+                            let mut l = e.op_len();
+                            while l > 0 {
+                                if let Some(b) = self.seq.next_back() {
+                                    if b.base_on_seq() {
+                                        l -= 1
+                                    }
+                                } else {
+                                    break
+                                }
+                            }
                             None
                         }
                         CigarOp::RefSkip => {
@@ -211,7 +245,7 @@ where
     S: Iterator<Item = T> + FusedIterator,
     R: Iterator<Item = Base> + FusedIterator,
     C: Iterator<Item = CigarElem> + FusedIterator,
-    T: Sized,
+    T: Sized + BaseOnSeq,
 {
 }
 
