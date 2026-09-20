@@ -39,7 +39,9 @@ where
 }
 
 pub trait BaseOnSeq {
-    fn base_on_seq(&self) -> bool { true }
+    fn base_on_seq(&self) -> bool {
+        true
+    }
 }
 
 pub struct AlignIter<S, C, R, T>
@@ -115,11 +117,12 @@ where
                 if e.op_len() > 0 {
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
-                            self.current_elem = e.decr_len();
                             let s = self.seq.next();
                             let r = if s.as_ref().map(|b| b.base_on_seq()).unwrap_or(true) {
+                                self.current_elem = e.decr_len();
                                 self.ref_seq.next()
                             } else {
+                                self.current_elem = Some(e);
                                 None
                             };
                             Some(mk(s, r))
@@ -129,7 +132,7 @@ where
                             let s = loop {
                                 let b = self.seq.next();
                                 if b.as_ref().map(|d| d.base_on_seq()).unwrap_or(true) {
-                                    break b
+                                    break b;
                                 }
                             };
                             Some(mk(s, None))
@@ -147,7 +150,7 @@ where
                                         l -= 1
                                     }
                                 } else {
-                                    break
+                                    break;
                                 }
                             }
                             None
@@ -191,11 +194,12 @@ where
                 if e.op_len() > 0 {
                     match e.op() {
                         CigarOp::Match | CigarOp::Diff | CigarOp::Equal => {
-                            self.current_elem_rev = e.decr_len();
                             let s = self.seq.next_back();
                             let r = if s.as_ref().map(|b| b.base_on_seq()).unwrap_or(true) {
+                                self.current_elem_rev = e.decr_len();
                                 self.ref_seq.next_back()
                             } else {
+                                self.current_elem_rev = Some(e);
                                 None
                             };
                             Some(mk(s, r))
@@ -205,7 +209,7 @@ where
                             let s = loop {
                                 let b = self.seq.next_back();
                                 if b.as_ref().map(|d| d.base_on_seq()).unwrap_or(true) {
-                                    break b
+                                    break b;
                                 }
                             };
                             Some(mk(s, None))
@@ -223,7 +227,7 @@ where
                                         l -= 1
                                     }
                                 } else {
-                                    break
+                                    break;
                                 }
                             }
                             None
