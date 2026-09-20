@@ -128,13 +128,13 @@ where
                             Some(mk(s, r))
                         }
                         CigarOp::Ins => {
-                            self.current_elem = e.decr_len();
-                            let s = loop {
-                                let b = self.seq.next();
-                                if b.as_ref().map(|d| d.base_on_seq()).unwrap_or(true) {
-                                    break b;
-                                }
-                            };
+                            let s = self.seq.next();
+                            self.current_elem =
+                                if s.as_ref().map(|b| b.base_on_seq()).unwrap_or(true) {
+                                    e.decr_len()
+                                } else {
+                                    Some(e)
+                                };
                             Some(mk(s, None))
                         }
                         CigarOp::Del => {
@@ -205,13 +205,13 @@ where
                             Some(mk(s, r))
                         }
                         CigarOp::Ins => {
-                            self.current_elem_rev = e.decr_len();
-                            let s = loop {
-                                let b = self.seq.next_back();
-                                if b.as_ref().map(|d| d.base_on_seq()).unwrap_or(true) {
-                                    break b;
-                                }
-                            };
+                            let s = self.seq.next_back();
+                            self.current_elem_rev =
+                                if s.as_ref().map(|b| b.base_on_seq()).unwrap_or(true) {
+                                    e.decr_len()
+                                } else {
+                                    Some(e)
+                                };
                             Some(mk(s, None))
                         }
                         CigarOp::Del => {
